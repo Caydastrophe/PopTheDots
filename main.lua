@@ -71,174 +71,210 @@ function love.load()
     score = 0
     timer = 0
     health = 5
+    isPaused = false
+    pauseText = "Play"
 
     gameFont = love.graphics.newFont(40)
 end
 
 function love.update(dt)
-    timer = timer + 1
-
-    if timer == 4*60 then
-        target2.colour = randomElementFromTable(colours)
-        target2.radius = 50
+    if isPaused == true then
+        pauseText = "Paused"
     end
 
-    if timer == 6*60 then
-        target3.colour = randomElementFromTable(colours)
-        target3.radius = 50
+    if isPaused == false then
+        pauseText = " "
     end
 
-    if timer == 8*60 then
-        target4.colour = randomElementFromTable(colours)
-        target4.radius = 50
-    end
+    if isPaused == false then
 
-    if timer == 10*60 then
-        target5.colour = randomElementFromTable(colours)
-        target5.radius = 50
-    end
+        timer = timer + 1
 
-    -- Make them grow or shrink 
-    if timer > 5*60 then
-        for _, target in ipairs(targetList) do
-            if target.grow ~= nil then
-                if target.grow then
-                    target.radius = target.radius + 1/10
-                else
-                    if not target.grow then
-                        target.radius = target.radius - 1/10
+        if timer == 4*60 then
+            target2.colour = randomElementFromTable(colours)
+            target2.radius = 50
+        end
+
+        if timer == 6*60 then
+            target3.colour = randomElementFromTable(colours)
+            target3.radius = 50
+        end
+
+        if timer == 8*60 then
+            target4.colour = randomElementFromTable(colours)
+            target4.radius = 50
+        end
+
+        if timer == 10*60 then
+            target5.colour = randomElementFromTable(colours)
+            target5.radius = 50
+        end
+
+        -- Make them grow or shrink 
+        if timer > 5*60 then
+            for _, target in ipairs(targetList) do
+                if target.grow ~= nil then
+                    if target.grow then
+                        target.radius = target.radius + 1/10
+                    else
+                        if not target.grow then
+                            target.radius = target.radius - 1/10
+                        end
                     end
                 end
             end
         end
-    end
 
-    -- Make them move vertically
-    if timer > 21*60 then
-        for _, target in ipairs(targetList) do
-            if target.moveVertical then
-                target.y = target.y + 3
-            else
-                if not target.moveVertical then
-                    target.y = target.y - 3
+        -- Make them move vertically
+        if timer > 21*60 then
+            for _, target in ipairs(targetList) do
+                if target.moveVertical then
+                    target.y = target.y + 3
+                else
+                    if not target.moveVertical then
+                        target.y = target.y - 3
+                    end
                 end
             end
         end
-    end
 
-    -- Make them move horizontally
-    if timer > 21*60 then
-        for _, target in ipairs(targetList) do
-            if target.moveHorizontal then
-                target.x = target.x + 5
-            else
-                if not target.moveHorizontal then
-                    target.x = target.x - 5
+        -- Make them move horizontally
+        if timer > 21*60 then
+            for _, target in ipairs(targetList) do
+                if target.moveHorizontal then
+                    target.x = target.x + 5
+                else
+                    if not target.moveHorizontal then
+                        target.x = target.x - 5
+                    end
                 end
             end
         end
-    end
 
-    -- Check that they aren't smacking the wall
-    if timer > 2*60 then
-        for _, target in ipairs(targetList) do
-            if checkVerticalDirection(target) then
-                if (target.y < 0) then
-                    target.y = 1
+        -- Check that they aren't smacking the wall
+        if timer > 2*60 then
+            for _, target in ipairs(targetList) do
+                if checkVerticalDirection(target) then
+                    if (target.y < 0) then
+                        target.y = 1
+                    end
+
+                    if (target.y > height) then
+                        target.y = height - 1
+                    end
+
+                    target.moveVertical = not target.moveVertical
                 end
 
-                if (target.y > height) then
-                    target.y = height - 1
+                if checkHorizontalDirection(target) then
+                    if (target.x < 0) then
+                        target.x = 1
+                    end
+
+                    if (target.x > width) then
+                        target.x = width - 1
+                    end
+
+                    target.moveHorizontal = not target.moveHorizontal
                 end
-
-                target.moveVertical = not target.moveVertical
-            end
-
-            if checkHorizontalDirection(target) then
-                if (target.x < 0) then
-                    target.x = 1
-                end
-
-                if (target.x > width) then
-                    target.x = width - 1
-                end
-
-                target.moveHorizontal = not target.moveHorizontal
-            end
-        end
-    end
-
-    -- Check that they aren't getting too big or small
-    if timer > 16*60 then
-        for _, target in ipairs(targetList) do
-            if target.radius < 1 or target.radius > height then
-                setGrowValue(target)
-                health = health - 1
             end
         end
-    end
+
+        -- Check that they aren't getting too big or small
+        if timer > 16*60 then
+            for _, target in ipairs(targetList) do
+                if target.radius < 1 or target.radius > height then
+                    setGrowValue(target)
+                    health = health - 1
+                end
+            end
+        end
+end
 end
 
 function love.draw()
-    -- First circle
-    love.graphics.setColor(target1.colour[1], target1.colour[2], target1.colour[3])
-    love.graphics.circle('fill', target1.x, target1.y, target1.radius)
+    if isPaused == false then
+        -- First circle
+        love.graphics.setColor(target1.colour[1], target1.colour[2], target1.colour[3])
+        love.graphics.circle('fill', target1.x, target1.y, target1.radius)
 
-    -- Second circle
-    love.graphics.setColor(target2.colour[1], target2.colour[2], target2.colour[3])
-    love.graphics.circle('fill', target2.x, target2.y, target2.radius)
+        -- Second circle
+        love.graphics.setColor(target2.colour[1], target2.colour[2], target2.colour[3])
+        love.graphics.circle('fill', target2.x, target2.y, target2.radius)
 
-    -- Third circle
-    love.graphics.setColor(target3.colour[1], target3.colour[2], target3.colour[3])
-    love.graphics.circle('fill', target3.x, target3.y, target3.radius)
+        -- Third circle
+        love.graphics.setColor(target3.colour[1], target3.colour[2], target3.colour[3])
+        love.graphics.circle('fill', target3.x, target3.y, target3.radius)
 
-    -- Fourth circle
-    love.graphics.setColor(target4.colour[1], target4.colour[2], target4.colour[3])
-    love.graphics.circle('fill', target4.x, target4.y, target4.radius)
+        -- Fourth circle
+        love.graphics.setColor(target4.colour[1], target4.colour[2], target4.colour[3])
+        love.graphics.circle('fill', target4.x, target4.y, target4.radius)
 
-    -- Fifth circle
-    love.graphics.setColor(target5.colour[1], target5.colour[2], target5.colour[3])
-    love.graphics.circle('fill', target5.x, target5.y, target5.radius)
+        -- Fifth circle
+        love.graphics.setColor(target5.colour[1], target5.colour[2], target5.colour[3])
+        love.graphics.circle('fill', target5.x, target5.y, target5.radius)
 
-    -- font
-    love.graphics.setFont(gameFont)
-    love.graphics.setColor(1, 1, 1)
-    love.graphics.print(score, 0, 0)
+        -- font
+        love.graphics.setFont(gameFont)
+        love.graphics.setColor(1, 1, 1)
+        love.graphics.print(score, 0, 0)
 
-    love.graphics.print(health, width-(width*0.1), 0)
+        love.graphics.print(health, width-(width*0.1), 0)
+    else
+        if isPaused == true then
+            love.graphics.setColor(1, 1, 1)
+            love.graphics.rectangle('line', width-(width*0.75), height-(height*0.8), (width*0.5), (height*0.5))
+            love.graphics.setColor(1, 0.5, 1)
+            love.graphics.rectangle('line', width-(width*0.63), height-(height*0.68), (width*0.25), (height*0.25))
+            love.graphics.print(pauseText,  (width*0.4), (height*0.4))
+        end
+    end
 end
 
 function love.mousepressed(x, y, button, istouch, presses)
-    -- if timer > 2*60 and timer < 20*60 then
-    --     initializeGrowValues()
-    -- end
-
-    -- if timer > 2*60 and timer < 25*60 then
-    --     initializeMoveValues()
-    -- end
-
     if button == 1 then
-        local target = identifyCircle(x, y)
-        if target then
-            local mouseToTarget = distanceBetween(x, y, target.x, target.y)
-            if mouseToTarget < target.radius then
-                score = score + 1
+        if isPaused == false then
+            local target = identifyCircle(x, y)
+            if target then
+                local mouseToTarget = distanceBetween(x, y, target.x, target.y)
+                if mouseToTarget < target.radius then
+                    score = score + 1
 
-                if timer > 15*60 then
-                    setGrowValue(target)
+                    if timer > 15*60 then
+                        setGrowValue(target)
+                    end
+
+                    if timer > 20*60 then
+                        setMoveValue(target)
+                    end
+
+                    target.x = math.random(target.radius, love.graphics.getWidth() - target.radius)
+                    target.y = math.random(target.radius, love.graphics.getHeight() - target.radius)
+                    target.colour = randomElementFromTable(colours)
                 end
-
-                if timer > 20*60 then
-                    setMoveValue(target)
+            end
+        else
+            if isPaused == true then
+                if x > width*0.39 and x < width*0.63 and y < height*0.57 and y > height*0.32 then
+                    isPaused = false
                 end
-
-                target.x = math.random(target.radius, love.graphics.getWidth() - target.radius)
-                target.y = math.random(target.radius, love.graphics.getHeight() - target.radius)
-                target.colour = randomElementFromTable(colours)
             end
         end
     end
 end
+
+-- Pause menu
+function love.keyreleased(key)
+    if key == "escape" then
+        if isPaused == false then
+            isPaused = true
+        else
+            if isPaused == true then
+                isPaused = false
+            end
+        end
+    end
+ end
 
 -- Custom functions
 
@@ -272,50 +308,6 @@ function tableLength(T)
     for _ in pairs(T) do count = count + 1 end
     return count
 end
-
--- function initializeGrowValues()
---     if timer == 12*60 then
---         target1.grow = true
---     end
-
---     if timer == 14*60 then
---         target1.grow = true
---     end
-
---     if timer == 16*60 then
---         target1.grow = true
---     end
-
---     if timer == 18*60 then
---         target1.grow = true
---     end
-
---     if timer == 18*60 then
---         target1.grow = true
---     end
--- end
-
--- function initializeMoveValues()
---     if timer == 16*60 then
---         target1.grow = true
---     end
-
---     if timer == 18*60 then
---         target2.grow = true
---     end
-
---     if timer == 20*60 then
---         target3.grow = true
---     end
-
---     if timer == 22*60 then
---         target4.grow = true
---     end
-
---     if timer == 24*60 then
---         target5.grow = true
---     end
--- end
 
 function setGrowValue(target)
     local randomNumber = math.random(0, 10)
